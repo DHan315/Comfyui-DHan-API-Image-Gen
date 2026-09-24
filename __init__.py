@@ -1,11 +1,13 @@
-from .api_image_gen import APIImageGen
+from .api_image_gen import APIImageGen, APIImageRefStacker
 
 NODE_CLASS_MAPPINGS = {
     "APIImageGen": APIImageGen,
+    "APIImageRefStacker": APIImageRefStacker,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "APIImageGen": "API-Image-gen",
+    "APIImageRefStacker": "API-Image-gen RefStacker",
 }
 
 WEB_DIRECTORY = "./js"

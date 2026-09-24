@@ -7,6 +7,7 @@ Both providers are included. Clone `https://github.com/DHan315/Comfyui-DHan-API-
 ## Nodes
 
 - **API-Image-gen** lets you choose the provider and model from dropdowns and connect the primary image and references directly.
+- **API-Image-gen RefStacker** collects reference images into one socket for either provider. Direct reference inputs remain available on the main node.
 
 The primary image is sent first, followed by references in stack order. `match_input` requests a valid custom GPT Image size near the primary image's aspect ratio, then restores the exact input dimensions for downstream compositing.
 

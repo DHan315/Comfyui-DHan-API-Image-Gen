@@ -1,7 +1,9 @@
 import { app } from "../../scripts/app.js";
 
 const TARGET = "APIImageGen";
+const STACKER = "APIImageRefStacker";
 const MAX_REFS = 14;
+const MIN_WIDTH = 460;
 const MODELS = {
     "Nano Banana (Gemini)": ["gemini-3.1-flash-image", "gemini-3-pro-image", "gemini-2.5-flash-image"],
     "GPT Image (OpenAI)": ["gpt-image-2.5-sunburst", "gpt-image-2.5-flare", "gpt-image-2"],
@@ -24,14 +26,24 @@ function showWidget(item, visible) {
     if (visible && item.__apiImageOriginalType !== undefined) {
         item.type = item.__apiImageOriginalType;
         item.computeSize = item.__apiImageOriginalComputeSize;
+        item.hidden = item.__apiImageOriginalHidden;
         delete item.__apiImageOriginalType;
         delete item.__apiImageOriginalComputeSize;
+        delete item.__apiImageOriginalHidden;
     } else if (!visible && item.__apiImageOriginalType === undefined) {
         item.__apiImageOriginalType = item.type;
         item.__apiImageOriginalComputeSize = item.computeSize;
-        item.type = "converted-widget";
+        item.__apiImageOriginalHidden = item.hidden;
+        item.type = "hidden";
+        item.hidden = true;
         item.computeSize = () => [0, -4];
     }
+}
+
+function resizeNode(node) {
+    const size = node.computeSize?.() || node.size;
+    const minWidth = (node.comfyClass || node.type) === TARGET ? MIN_WIDTH : size[0];
+    node.setSize?.([Math.max(node.size?.[0] || 0, minWidth), size[1]]);
 }
 
 function setChoices(item, values) {
@@ -62,7 +74,7 @@ function sync(node) {
         const index = indexOf(node.inputs[slot]);
         if (index > visible && node.inputs[slot].link == null) node.removeInput(slot);
     }
-    node.size = node.computeSize?.() || node.size;
+    resizeNode(node);
 }
 
 function syncSettings(node) {
@@ -110,7 +122,7 @@ function syncSettings(node) {
         PROVIDER_VALUES.map(name => [name, widget(node, name)?.value])
     );
 
-    node.setSize?.(node.computeSize());
+    resizeNode(node);
     node.setDirtyCanvas?.(true, true);
     app.graph?.setDirtyCanvas?.(true, true);
 }
@@ -134,12 +146,13 @@ function hookSettings(node) {
 app.registerExtension({
     name: "APIImageGen.ProgressiveRefInputs",
     async beforeRegisterNodeDef(nodeType) {
-        if ((nodeType.comfyClass || nodeType.ComfyClass) !== TARGET) return;
+        const className = nodeType.comfyClass || nodeType.ComfyClass;
+        if (![TARGET, STACKER].includes(className)) return;
         const oldCreated = nodeType.prototype.onNodeCreated;
         nodeType.prototype.onNodeCreated = function () {
             const result = oldCreated?.apply(this, arguments);
             sync(this);
-            hookSettings(this);
+            if (className === TARGET) hookSettings(this);
             return result;
         };
         const oldConnections = nodeType.prototype.onConnectionsChange;
@@ -150,17 +163,19 @@ app.registerExtension({
         };
     },
     loadedGraphNode(node) {
-        if (node.comfyClass === TARGET) {
+        if ([TARGET, STACKER].includes(node.comfyClass)) {
             sync(node);
-            hookSettings(node);
+            if (node.comfyClass === TARGET) hookSettings(node);
         }
     },
     async afterConfigureGraph() {
         for (const node of app.graph?._nodes || []) {
-            if (node.comfyClass === TARGET) {
+            if ([TARGET, STACKER].includes(node.comfyClass)) {
                 sync(node);
-                hookSettings(node);
-                syncSettings(node);
+                if (node.comfyClass === TARGET) {
+                    hookSettings(node);
+                    syncSettings(node);
+                }
             }
         }
     },

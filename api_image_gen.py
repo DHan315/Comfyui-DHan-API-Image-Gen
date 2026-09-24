@@ -45,6 +45,30 @@ def gpt_size(aspect_ratio, resolution):
     return f"{width}x{height}"
 
 
+class APIImageRefStacker:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {},
+            "optional": {
+                f"ref_image_{index}": ("IMAGE", {"forceInput": True})
+                for index in range(1, 15)
+            },
+        }
+
+    RETURN_TYPES = ("API_IMAGE_REFS",)
+    RETURN_NAMES = ("references",)
+    FUNCTION = "stack"
+    CATEGORY = "Image API"
+
+    def stack(self, **kwargs):
+        return ([
+            kwargs[f"ref_image_{index}"]
+            for index in range(1, 15)
+            if kwargs.get(f"ref_image_{index}") is not None
+        ],)
+
+
 class APIImageGen:
     @classmethod
     def INPUT_TYPES(cls):
@@ -69,6 +93,7 @@ class APIImageGen:
             },
             "optional": {
                 "image": ("IMAGE", {"forceInput": True}),
+                "references": ("API_IMAGE_REFS", {"forceInput": True}),
                 **{
                     f"ref_image_{index}": ("IMAGE", {"forceInput": True})
                     for index in range(1, 15)
@@ -81,8 +106,8 @@ class APIImageGen:
     FUNCTION = "process"
     CATEGORY = "Image API"
 
-    def process(self, provider, model, api_key, prompt, negative_prompt, seed, aspect_ratio, resolution, num_images, quality, background, output_format, output_compression, thinking_mode, search_grounding, debug_mode, image=None, **kwargs):
-        references = [
+    def process(self, provider, model, api_key, prompt, negative_prompt, seed, aspect_ratio, resolution, num_images, quality, background, output_format, output_compression, thinking_mode, search_grounding, debug_mode, image=None, references=None, **kwargs):
+        references = list(references or []) + [
             kwargs[f"ref_image_{index}"]
             for index in range(1, 15)
             if kwargs.get(f"ref_image_{index}") is not None
