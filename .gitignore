@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+industry_master_billing.json
+industry_master_billing.md
+nano_debug_latest.txt
+Billing_Archive_*.json
