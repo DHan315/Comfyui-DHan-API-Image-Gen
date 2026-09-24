@@ -1,0 +1,11 @@
+[project]
+name = "comfyui-dhan-api-image-gen"
+description = "Gemini and OpenAI image generation and editing node for ComfyUI."
+version = "1.0.0"
+license = {text = "MIT"}
+
+[tool.comfy]
+PublisherId = "dhy"
+DisplayName = "API-Image-gen"
+Icon = ""
+
