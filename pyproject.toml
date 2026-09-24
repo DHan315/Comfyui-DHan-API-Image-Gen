@@ -6,6 +6,6 @@ license = {text = "MIT"}
 
 [tool.comfy]
 PublisherId = "dhy"
-DisplayName = "API-Image-gen"
+DisplayName = "Comfyui-DHan-API-Image-gen"
 Icon = ""
 

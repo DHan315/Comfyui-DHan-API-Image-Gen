@@ -1,4 +1,4 @@
-# API-Image-gen
+# Comfyui-DHan-API-Image-gen
 
 Gemini Nano Banana and OpenAI GPT Image generation and editing in one ComfyUI node.
 
@@ -6,8 +6,8 @@ Both providers are included. Clone `https://github.com/DHan315/Comfyui-DHan-API-
 
 ## Nodes
 
-- **API-Image-gen** lets you choose the provider and model from dropdowns and connect the primary image and references directly.
-- **API-Image-gen RefStacker** shows 14 reference image sockets, like the former Nano stacker, and collects them into one connection for either provider. Direct reference inputs remain available on the main node. GPT Image accepts up to 16 input images total, including the primary image.
+- **Comfyui-DHan-API-Image-gen** lets you choose the provider and model from dropdowns and connect the primary image and references directly.
+- **Comfyui-DHan-API-Image-gen RefStacker** shows 14 reference image sockets, like the former Nano stacker, and collects them into one connection for either provider. Direct reference inputs remain available on the main node. GPT Image accepts up to 16 input images total, including the primary image.
 
 The primary image is sent first, followed by references in stack order. `match_input` requests a valid custom GPT Image size near the primary image's aspect ratio, then restores the exact input dimensions for downstream compositing.
 
