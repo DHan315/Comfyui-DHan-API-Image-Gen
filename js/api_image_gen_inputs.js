@@ -4,6 +4,7 @@ const TARGET = "APIImageGen";
 const STACKER = "APIImageRefStacker";
 const MAX_REFS = 14;
 const MIN_WIDTH = 460;
+const STACKER_WIDTH = 240;
 const MODELS = {
     "Nano Banana (Gemini)": ["gemini-3.1-flash-image", "gemini-3-pro-image", "gemini-2.5-flash-image"],
     "GPT Image (OpenAI)": ["gpt-image-2.5-sunburst", "gpt-image-2.5-flare", "gpt-image-2"],
@@ -42,7 +43,7 @@ function showWidget(item, visible) {
 
 function resizeNode(node) {
     const size = node.computeSize?.() || node.size;
-    const minWidth = (node.comfyClass || node.type) === TARGET ? MIN_WIDTH : size[0];
+    const minWidth = (node.comfyClass || node.type) === TARGET ? MIN_WIDTH : STACKER_WIDTH;
     node.setSize?.([Math.max(node.size?.[0] || 0, minWidth), size[1]]);
 }
 
@@ -151,30 +152,40 @@ app.registerExtension({
         const oldCreated = nodeType.prototype.onNodeCreated;
         nodeType.prototype.onNodeCreated = function () {
             const result = oldCreated?.apply(this, arguments);
-            sync(this);
-            if (className === TARGET) hookSettings(this);
+            if (className === TARGET) {
+                sync(this);
+                hookSettings(this);
+            } else {
+                resizeNode(this);
+            }
             return result;
         };
         const oldConnections = nodeType.prototype.onConnectionsChange;
         nodeType.prototype.onConnectionsChange = function () {
             const result = oldConnections?.apply(this, arguments);
-            sync(this);
+            if (className === TARGET) sync(this);
             return result;
         };
     },
     loadedGraphNode(node) {
         if ([TARGET, STACKER].includes(node.comfyClass)) {
-            sync(node);
-            if (node.comfyClass === TARGET) hookSettings(node);
+            if (node.comfyClass === TARGET) {
+                sync(node);
+                hookSettings(node);
+            } else {
+                resizeNode(node);
+            }
         }
     },
     async afterConfigureGraph() {
         for (const node of app.graph?._nodes || []) {
             if ([TARGET, STACKER].includes(node.comfyClass)) {
-                sync(node);
                 if (node.comfyClass === TARGET) {
+                    sync(node);
                     hookSettings(node);
                     syncSettings(node);
+                } else {
+                    resizeNode(node);
                 }
             }
         }
