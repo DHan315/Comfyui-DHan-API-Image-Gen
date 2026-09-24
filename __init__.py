@@ -6,8 +6,8 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "APIImageGen": "Comfyui-DHan-API-Image-gen",
-    "APIImageRefStacker": "Comfyui-DHan-API-Image-gen RefStacker",
+    "APIImageGen": "DHan-API-Image-gen",
+    "APIImageRefStacker": "DHan-API-Image-gen RefStacker",
 }
 
 WEB_DIRECTORY = "./js"
