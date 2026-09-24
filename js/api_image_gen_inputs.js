@@ -3,7 +3,8 @@ import { app } from "../../scripts/app.js";
 const TARGET = "APIImageGen";
 const STACKER = "APIImageRefStacker";
 const MAX_REFS = 14;
-const MIN_WIDTH = 460;
+const MIN_WIDTH = 350;
+const PREVIOUS_MIN_WIDTH = 460;
 const STACKER_WIDTH = 240;
 const MODELS = {
     "Nano Banana (Gemini)": ["gemini-3.1-flash-image", "gemini-3-pro-image", "gemini-2.5-flash-image"],
@@ -43,8 +44,11 @@ function showWidget(item, visible) {
 
 function resizeNode(node) {
     const size = node.computeSize?.() || node.size;
-    const minWidth = (node.comfyClass || node.type) === TARGET ? MIN_WIDTH : STACKER_WIDTH;
-    node.setSize?.([Math.max(node.size?.[0] || 0, minWidth), size[1]]);
+    const mainNode = (node.comfyClass || node.type) === TARGET;
+    const minWidth = mainNode ? MIN_WIDTH : STACKER_WIDTH;
+    const currentWidth = node.size?.[0] || 0;
+    const width = mainNode && currentWidth === PREVIOUS_MIN_WIDTH ? MIN_WIDTH : Math.max(currentWidth, minWidth);
+    node.setSize?.([width, size[1]]);
 }
 
 function setChoices(item, values) {
